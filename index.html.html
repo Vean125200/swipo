@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipo - Dating App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .login-screen {
+            background: linear-gradient(135deg, #00d4ff, #3b82f6);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .main-app {
+            display: none;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .swipe-container {
+            padding: 20px;
+        }
+
+        .swipes-left {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background: #e5e5e5;
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .profile-image {
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary-color, #00d4ff), var(--secondary-color, #3b82f6));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .profile-initial {
+            font-size: 4rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .verified-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3b82f6;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .profile-info {
+            padding: 20px;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-location {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .profile-bio {
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .swipe-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .swipe-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .swipe-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .pass-btn {
+            background: #f3f4f6;
+            color: #666;
+        }
+
+        .like-btn {
+            background: var(--accent-color, #3b82f6);
+            color: white;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .nav-btn.active {
+            color: #3b82f6;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .view {
+            display: none;
+            padding: 20px;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .view h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color, #3b82f6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .color-themes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .color-theme {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .color-theme.active {
+            border-color: #333;
+        }
+
+        .theme-blue { background: linear-gradient(135deg, #00d4ff, #3b82f6); }
+        .theme-purple { background: linear-gradient(135deg, #a855f7, #ec4899); }
+        .theme-green { background: linear-gradient(135deg, #10b981, #059669); }
+        .theme-yellow { background: linear-gradient(135deg, #f59e0b, #f97316); }
+
+        .language-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            padding: 10px 15px;
+            border: 2px solid #e5e5e5;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .profile-view {
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color, #00d4ff), var(--secondary-color, #3b82f6));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app {
+                max-width: 100%;
+            }
+            
+            .navigation {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-card">
+                <div class="logo">
+                    <h1>Swipo</h1>
+                    <p>Hitta din perfekta match</p>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Användarnamn">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Lösenord">
+                </div>
+                <button class="btn btn-primary" onclick="login()">Logga in</button>
+                <button class="btn btn-secondary">Registrera</button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="main-app">
+            <!-- Swipe View -->
+            <div id="swipeView" class="view active">
+                <div class="swipe-container">
+                    <div class="swipes-left">
+                        <span class="badge">Swipes kvar: <span id="swipesCount">30</span></span>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="profile-image">
+                            <div class="profile-initial" id="profileInitial">E</div>
+                            <div class="verified-badge" id="verifiedBadge">✓ Verifierad</div>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileName">Emma, 25</div>
+                            <div class="profile-location" id="profileLocation">Stockholm • 2 km bort</div>
+                            <div class="profile-bio" id="profileBio">Älskar att resa och upptäcka nya platser! 🌍</div>
+                        </div>
+                    </div>
+
+                    <div class="swipe-buttons">
+                        <button class="swipe-btn pass-btn" onclick="swipe('pass')">✕</button>
+                        <button class="swipe-btn like-btn" onclick="swipe('like')">♥</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat View -->
+            <div id="chatView" class="view">
+                <h2>Matchningar</h2>
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <p>Inga matchningar än. Fortsätt swipa!</p>
+                </div>
+            </div>
+
+            <!-- Virtual Dates View -->
+            <div id="virtualDatesView" class="view">
+                <h2>Virtuella dejter</h2>
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <div class="activity-icon">🎮</div>
+                        <div>
+                            <h3>Frågesport</h3>
+                            <p>Testa era kunskaper tillsammans</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <div class="activity-icon">⭐</div>
+                        <div>
+                            <h3>Sanning eller konsekvens</h3>
+                            <p>Lär känna varandra bättre</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <div class="activity-icon">📅</div>
+                        <div>
+                            <h3>Bara prata</h3>
+                            <p>Videochatt och lär känna varandra</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="profileView" class="view">
+                <h2>Profil</h2>
+                <div class="profile-view">
+                    <div class="profile-avatar" id="userAvatar">T</div>
+                    <h3 id="userName">test</h3>
+                    <div class="badge">✓ Verifierad</div>
+                    <div class="stats">
+                        <div class="stat-row">
+                            <span>Swipes idag:</span>
+                            <span id="swipesToday">0/30</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Matchningar:</span>
+                            <span id="matchCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="view">
+                <h2>Inställningar</h2>
+                
+                <div class="settings-section">
+                    <div class="settings-title">Färgtema</div>
+                    <div class="color-themes">
+                        <div class="color-theme theme-blue active" onclick="changeTheme('blue')"></div>
+                        <div class="color-theme theme-purple" onclick="changeTheme('purple')"></div>
+                        <div class="color-theme theme-green" onclick="changeTheme('green')"></div>
+                        <div class="color-theme theme-yellow" onclick="changeTheme('yellow')"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-title">Språk</div>
+                    <div class="language-buttons">
+                        <button class="lang-btn active" onclick="changeLanguage('sv')">🇸🇪 Svenska</button>
+                        <button class="lang-btn" onclick="changeLanguage('en')">🇺🇸 English</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="logout()" style="background: #ef4444;">Logga ut</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showView('swipe')">
+                <div class="nav-icon">♥</div>
+                <span>Swipa</span>
+            </button>
+            <button class="nav-btn" onclick="showView('chat')">
+                <div class="nav-icon">💬</div>
+                <span>Chatt</span>
+            </button>
+            <button class="nav-btn" onclick="showView('virtualDates')">
+                <div class="nav-icon">📅</div>
+                <span>Dejter</span>
+            </button>
+            <button class="nav-btn" onclick="showView('profile')">
+                <div class="nav-icon">👤</div>
+                <span>Profil</span>
+            </button>
+            <button class="nav-btn" onclick="showView('settings')">
+                <div class="nav-icon">⚙️</div>
+                <span>Inställningar</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentUser = '';
+        let swipesLeft = 30;
+        let currentProfileIndex = 0;
+        let matches = [];
+        let currentTheme = 'blue';
+
+        // Sample profiles
+        const profiles = [
+            { name: 'Emma', age: 25, city: 'Stockholm', verified: true, bio: 'Älskar att resa och upptäcka nya platser! 🌍', distance: 2 },
+            { name: 'Lucas', age: 28, city: 'Göteborg', verified: true, bio: 'Fotograf och äventyrare 📸', distance: 5 },
+            { name: 'Sofia', age: 24, city: 'Malmö', verified: false, bio: 'Yoga-instruktör och hundälskare 🧘‍♀️🐕', distance: 8 },
+            { name: 'Oliver', age: 30, city: 'Uppsala', verified: true, bio: 'Kock som älskar att laga mat för andra 👨‍🍳', distance: 12 },
+            { name: 'Astrid', age: 26, city: 'Lund', verified: true, bio: 'Läkare och bokworm 📚', distance: 15 }
+        ];
+
+        // Theme colors
+        const themes = {
+            blue: { primary: '#00d4ff', secondary: '#3b82f6', accent: '#3b82f6' },
+            purple: { primary: '#a855f7', secondary: '#ec4899', accent: '#a855f7' },
+            green: { primary: '#10b981', secondary: '#059669', accent: '#10b981' },
+            yellow: { primary: '#f59e0b', secondary: '#f97316', accent: '#f59e0b' }
+        };
+
+        // Login function
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                currentUser = username;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('userName').textContent = username;
+                document.getElementById('userAvatar').textContent = username[0].toUpperCase();
+                updateProfile();
+                updateStats();
+            }
+        }
+
+        // Show view function
+        function showView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Remove active from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected view
+            document.getElementById(viewName + 'View').classList.add('active');
+            
+            // Add active to clicked nav button
+            event.target.closest('.nav-btn').classList.add('active');
+        }
+
+        // Update profile display
+        function updateProfile() {
+            const profile = profiles[currentProfileIndex];
+            document.getElementById('profileInitial').textContent = profile.name[0];
+            document.getElementById('profileName').textContent = `${profile.name}, ${profile.age}`;
+            document.getElementById('profileLocation').textContent = `${profile.city} • ${profile.distance} km bort`;
+            document.getElementById('profileBio').textContent = profile.bio;
+            document.getElementById('verifiedBadge').style.display = profile.verified ? 'block' : 'none';
+        }
+
+        // Swipe function
+        function swipe(direction) {
+            if (swipesLeft <= 0) return;
+            
+            swipesLeft--;
+            document.getElementById('swipesCount').textContent = swipesLeft;
+            
+            if (direction === 'like') {
+                // 30% chance of match
+                if (Math.random() > 0.7) {
+                    matches.push(profiles[currentProfileIndex]);
+                    alert('🎉 Det är en match!');
+                }
+            }
+            
+            // Move to next profile
+            currentProfileIndex = (currentProfileIndex + 1) % profiles.length;
+            updateProfile();
+            updateStats();
+            
+            if (swipesLeft === 0) {
+                alert('Inga fler swipes idag! Kom tillbaka imorgon eller köp fler swipes.');
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('swipesToday').textContent = `${30 - swipesLeft}/30`;
+            document.getElementById('matchCount').textContent = matches.length;
+        }
+
+        // Change theme
+        function changeTheme(theme) {
+            currentTheme = theme;
+            const colors = themes[theme];
+            
+            document.documentElement.style.setProperty('--primary-color', colors.primary);
+            document.documentElement.style.setProperty('--secondary-color', colors.secondary);
+            document.documentElement.style.setProperty('--accent-color', colors.accent);
+            
+            // Update active theme button
+            document.querySelectorAll('.color-theme').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.theme-${theme}`).classList.add('active');
+        }
+
+        // Change language
+        function changeLanguage(lang) {
+            // Update active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Here you would implement actual language switching
+            console.log('Language changed to:', lang);
+        }
+
+        // Logout function
+        function logout() {
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            
+            // Reset app state
+            currentUser = '';
+            swipesLeft = 30;
+            currentProfileIndex = 0;
+            matches = [];
+            
+            document.getElementById('swipesCount').textContent = '30';
+            updateProfile();
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProfile();
+            changeTheme('blue');
+        });
+    </script>
+</body>
+</html>
+
